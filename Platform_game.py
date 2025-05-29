@@ -20,8 +20,8 @@ screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Platformer Game")
 
 
-sunImage = pygame.image.load("sun.png",)
-bgImage = pygame.image.load("bg.png")
+sunImage = pygame.image.load("img/sun.png")
+bgImage = pygame.image.load("img/bg.png")
 
 noOfTiles = 20
 tileSizeH = screen_height/noOfTiles #tile size for vertical lines, necesaasry for when screen width nd screen height are different
@@ -62,8 +62,8 @@ class World():
         
         self.tileList =[]
         
-        dirtImage = pygame.image.load("dirt.png")
-        grassImage = pygame.image.load("grass.png")
+        dirtImage = pygame.image.load("img/dirt.png")
+        grassImage = pygame.image.load("img/grass.png")
          
         #Standard use of a nested for loop to display things in a grid()
         row_no = 0
@@ -95,7 +95,7 @@ class World():
 
 class Player():
     def __init__(self, x, y):
-        player1 = image.load("guy1.png")
+        player1 = image.load("img/guy1.png")
         self.image = transform.scale(player1, (35,70))
         self.rect = self.image.get_rect()
         self.rect.x= x
