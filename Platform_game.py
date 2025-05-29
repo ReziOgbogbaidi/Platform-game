@@ -94,12 +94,25 @@ class World():
              
 
 class Player():
+    
     def __init__(self, x, y):
-        player1 = image.load("img/guy1.png")
-        self.image = transform.scale(player1, (35,70))
+        
+        self.playerImagesRight = [] #list that will store images that we will use for frames when player moves right
+        self.playerImagesLeft = []
+        
+        for playerNo in range (1,5): 
+            player = image.load(f"img/guy{playerNo}.png") #making use of pythons string formatting so we can load guy1 then guy2... guy4
+            imgRight = transform.scale(player, (35,70))
+            imgLeft = transform.flip(imgRight, True, False)
+            self.playerImagesRight.append(imgRight)
+            self.playerImagesLeft.append(imgLeft)
+
+            
+        self.image = self.playerImagesRight[0]
         self.rect = self.image.get_rect()
         self.rect.x= x
         self.rect.y= y
+        
         self.jumped = False
         self.vel_y =0 
         '''value of initial velocity assiged as an instant variable rather than a variable for the update method so that it is:
@@ -108,22 +121,38 @@ class Player():
                        We can not use dy becasy dy is reset to 0 each frame(it has to otherwise it wont work for up/down key presses)
                       '''
         self.gravity = +0.5
-    def update(self):
+        
+        self.index =0
+        self.tracker= 0  
+        self.Right =True #0 means player was initially facing right, 1 means player was facing left
+        
+        
+    def update(self): #animation is handled in this method when keys are pressed
         
         dy =0
         dx=0
         #get key presses
         key = pygame.key.get_pressed() #returns a list of true/false for all keys. pressed keys are marked true, unpressed keys are false. you can find a keys true/false value using its contasnt(eg K_SPACE) as the index
         
+        cooldown = 5 #the update funtion runs every frame, as a result the images being animate unto the screen are updated so quickly its unusable.
+                      #to slow it down we will limit it so that the program only uses the next image in the animation after 20 frames (so we get guy 1 for 5 frames then guy 2 for 5 frames, then guy 3..  instead of guy1 guy2 guy3 guy4 all happening in under 5 frames)
+        
+        
         #This is the meachnism we will use to move the player while preventing collision:
         #calculate new player position based on dx or dy 
         #check for collision 
         #update player coordinates
         
+        
         if key[pygame.K_RIGHT]:
+            self.Right =True 
+            self.tracker+=1 #makes it so the program only activates animation when the character is supposed to move left or right(ie. when left/right keys are pressed)
             dx = +2
+
             
         if key[pygame.K_LEFT]:
+            self.Right =False
+            self.tracker+=1
             dx = -2
             
         if key[pygame.K_DOWN]:
@@ -144,7 +173,38 @@ class Player():
                 if keyUpEvents.lenth()>0 and event.key == K_SPACE:
                     self.vel_y = -7 '''
                     
-         #note to self: learn how to debud when they function requires user/keyboard input   
+        if not key[pygame.K_RIGHT] and not key[pygame.K_LEFT]:
+            self.tracker=0
+            self.index = 0
+            
+            if self.Right:
+                self.image = self.image = self.playerImagesRight[self.index]
+            else: 
+                self.image = self.image = self.playerImagesLeft[self.index]
+            
+                    
+         #note to self: learn how to debug when the function requires user/keyboard input   
+        
+        
+        
+        #Handle animation
+        if self.tracker > cooldown: #player image is only updated every 5 frames instead of each frame
+
+            self.index +=1
+            
+            if self.index >= len(self.playerImagesRight): 
+                self.index =0  #makes sure that the animation continually runs through all the pictures
+            
+                
+            if self.Right:
+                self.image = self.playerImagesRight[self.index]
+                
+            else:
+                self.image = self.playerImagesLeft[self.index]
+                
+            self.tracker =0
+        
+        
         
         dy += self.vel_y   #keep updating y position based on current speed and direction      
         if self.vel_y < +7:
