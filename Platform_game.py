@@ -27,12 +27,12 @@ noOfTiles = 20
 tileSizeH = screen_height/noOfTiles #tile size for vertical lines, necesaasry for when screen width nd screen height are different
 tileSizeV = screen_width/noOfTiles
 
-
+'''
 def drawGrid(): #draws gridline to help partition my screen. Not necesarry but helpful to visualize how to place things
     for line in range(noOfTiles):
          draw.line(screen, (255,255,255), ( 0, (line+1)*tileSizeH ) , ( screen_width, (line+1)*tileSizeH )) #horizontal line
          draw.line(screen,  (255,255,255), ( (line+1)*tileSizeV , 0),  ( (line+1)*tileSizeV ,screen_height) )
-
+'''
 
 world_layout =  [
 [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], 
@@ -91,7 +91,7 @@ class World():
     def draw(self):
          for tile in self.tileList:
              screen.blit(tile[0], tile[1]) #the tile list is used to place its image in the correct coordinate on the screen
-             
+             pygame.draw.rect(screen, (255, 0, 0), tile[1], 1)
 
 class Player():
     
@@ -102,7 +102,8 @@ class Player():
         
         for playerNo in range (1,5): 
             player = image.load(f"img/guy{playerNo}.png") #making use of pythons string formatting so we can load guy1 then guy2... guy4
-            imgRight = transform.scale(player, (35,70))
+            #imgRight = transform.scale(player, (35,70))
+            imgRight = transform.scale(player, (0.99* tileSizeV, 2*tileSizeH )) #0.99* tileSizeV cause for some reason if its exactly tilesizev, the player cannot fit through a tile sized gap
             imgLeft = transform.flip(imgRight, True, False)
             self.playerImagesRight.append(imgRight)
             self.playerImagesLeft.append(imgLeft)
@@ -112,6 +113,8 @@ class Player():
         self.rect = self.image.get_rect()
         self.rect.x= x
         self.rect.y= y
+        self.imgWidth = self.image.get_width()
+        self.imgHeight = self.image.get_height()
         
         self.jumped = False
         self.vel_y =0 
@@ -207,19 +210,86 @@ class Player():
         
         
         dy += self.vel_y   #keep updating y position based on current speed and direction      
-        if self.vel_y < +7:
-            self.vel_y += self.gravity    #keep reducing velocity using gravity
-            
-        #update player coordinates
-        self.rect.x += dx  
-        self.rect.y += dy
+        self.vel_y += self.gravity    #keep reducing velocity using gravity, causes the player to fall once the program starts
 
+        if self.vel_y > +7:
+            self.vel_y =7
+            
+            
+        #check for collision
+        for tile in world.tileList:
+            
+            # collision in x direction not working-
+            #when left is pressed first, player goes left and the left boundary seems to work, 
+            #when right is pressed player moves left then zooms off the screen, left boundary isn't working then
+             # rectx =30, rect y =90
+             #dy,dx = 0,0 , x and y collisions are same
+             #dy, dx = 1,0, 
+             #dy,dx = 0,1 
+             #dy,dx = 1,1 
+            
+            if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.imgWidth, self.imgHeight):
+                print(f" x collisiion tile 1 coordinates is ({tile[1].x},{tile[1].y})")      
+                    
+                if dx > 0:
+                    ''' moving right -> align player's right with tile's left
+                   print(f"tile 1 coordinates is ({tile[1].x},{tile[1].y})")
+                    print(f"dx is {dx}")
+                    dx = tile[1].left - self.rect.right
+                    print(f"correct dx is {dx}") 
+                    '''
+                    dx=0
+                        
+                elif dx < 0:
+                    '''
+                    # moving left -> align player's left with tile's right
+                    print(f"...tile 1 coordinates is ({tile[1].x},{tile[1].y})")
+                    print(f"...dx is {dx}")
+                    print(f"...tile1.right is {tile[1]}.right")
+                    print(f"...selfRect.left is {self.rect.left}")
+                    dx = tile[1].right - self.rect.left 
+                    print(f"correct dx is {dx}") 
+                    '''
+                    dx =0
+                    
+            
+            #collision in y direction is working
+            if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.imgWidth, self.imgHeight):
+                
+                print(f" y collisiion tile 1 coordinates is ({tile[1].x},{tile[1].y})")      
+                
+                # juming up, ostacle above
+                if self.vel_y < 0:
+                    dy = tile[1].bottom - self.rect.top
+                    self.vel_y = 0
+                
+                #falling down, obstacle below
+                elif self.vel_y > 0:
+                    dy = tile[1].top - self.rect.bottom
+                    self.vel_y = 0
+                 
+                 
+                 
+                    
+                    
+                            
+        #update player coordinates
+        self.rect.x += dx
+        print("rectX is " + str(self.rect.x))
+        self.rect.y += dy
+        print("rectY is " + str(self.rect.y))
+       
+        '''    
         if self.rect.bottom > screen_height:
             self.rect.bottom = screen_height
-            dy=0
+            dy=0 '''
             
+
+        
         #draw player on screen    
-        screen.blit(self.image, self.rect)           
+        screen.blit(self.image, self.rect)
+        pygame.draw.rect(screen, (0, 255, 0), self.rect, 2)
+           
             
 '''
 if key[pygame.K_RIGHT]:
@@ -250,6 +320,7 @@ for move in dy:
         
 world = World(world_layout)         
 player = Player(70, screen_height-105) #based on 700px height/20, 1 tile is 35px tall. player is 70px tall so all together the top left of players corrdinates should be 105(35+70)px from the bottom of the screen. height is counted in a downward direction not upward 
+print(player.rect.x)
 
 
 running = True
@@ -268,8 +339,8 @@ while running:
         screen.blit(sunImage, [50,50])      #The order in which you place images matter, if you place the sunImage before the bgImage then you will not be able to see the sunImage
         world.draw()
         player.update()
-        drawGrid()
-
+        #drawGrid()
+        
        
  
 pygame.quit()
