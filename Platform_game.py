@@ -219,41 +219,10 @@ class Player():
         #check for collision
         for tile in world.tileList:
             
-            # collision in x direction not working-
-            #when left is pressed first, player goes left and the left boundary seems to work, 
-            #when right is pressed player moves left then zooms off the screen, left boundary isn't working then
-             # rectx =30, rect y =90
-             #dy,dx = 0,0 , x and y collisions are same
-             #dy, dx = 1,0, 
-             #dy,dx = 0,1 
-             #dy,dx = 1,1 
             
             if tile[1].colliderect(self.rect.x + dx, self.rect.y, self.imgWidth, self.imgHeight):
-                print(f" x collisiion tile 1 coordinates is ({tile[1].x},{tile[1].y})")      
+                dx =0
                     
-                if dx > 0:
-                    ''' moving right -> align player's right with tile's left
-                   print(f"tile 1 coordinates is ({tile[1].x},{tile[1].y})")
-                    print(f"dx is {dx}")
-                    dx = tile[1].left - self.rect.right
-                    print(f"correct dx is {dx}") 
-                    '''
-                    dx=0
-                        
-                elif dx < 0:
-                    '''
-                    # moving left -> align player's left with tile's right
-                    print(f"...tile 1 coordinates is ({tile[1].x},{tile[1].y})")
-                    print(f"...dx is {dx}")
-                    print(f"...tile1.right is {tile[1]}.right")
-                    print(f"...selfRect.left is {self.rect.left}")
-                    dx = tile[1].right - self.rect.left 
-                    print(f"correct dx is {dx}") 
-                    '''
-                    dx =0
-                    
-            
-            #collision in y direction is working
             if tile[1].colliderect(self.rect.x, self.rect.y + dy, self.imgWidth, self.imgHeight):
                 
                 print(f" y collisiion tile 1 coordinates is ({tile[1].x},{tile[1].y})")      
@@ -268,10 +237,7 @@ class Player():
                     dy = tile[1].top - self.rect.bottom
                     self.vel_y = 0
                  
-                 
-                 
-                    
-                    
+                                  
                             
         #update player coordinates
         self.rect.x += dx
@@ -291,30 +257,6 @@ class Player():
         pygame.draw.rect(screen, (0, 255, 0), self.rect, 2)
            
             
-'''
-if key[pygame.K_RIGHT]:
-    dx = (+2,)
-    
-if key[pygame.K_LEFT]:
-    dx = (-2,)
-    
-if key[pygame.K_UP]:
-    dy = (-2,)    
-    
-if key[pygame.K_DOWN]:
-    dy = (+2,)
-    
-if key[pygame.K_SPACE]:
-    dy =(-10,-10,-10,-10,-10,-10,-10,+10,+10,+10,+10,+10,+10,+10)
-
-    
-for move in dx:
-    self.rect.x += move #adjusting player coordinates
-    screen.blit(self.image, self.rect)
-for move in dy:
-    self.rect.y += move
-    screen.blit(self.image, self.rect)
-'''
         
                    
         
